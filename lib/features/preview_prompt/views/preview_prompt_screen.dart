@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/config/app_colors.dart';
 import '../../../core/utils/custom_snackbar.dart';
 
@@ -57,11 +59,7 @@ class _PreviewPromptScreenState extends State<PreviewPromptScreen> {
           ),
         ),
         child: Center(
-          child: Icon(
-            icon,
-            color: iconColor ?? AppColors.white,
-            size: 20.0,
-          ),
+          child: Icon(icon, color: iconColor ?? AppColors.white, size: 20.0),
         ),
       ),
     );
@@ -84,7 +82,6 @@ class _PreviewPromptScreenState extends State<PreviewPromptScreen> {
           ),
         ),
         centerTitle: true,
-
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -93,7 +90,10 @@ class _PreviewPromptScreenState extends State<PreviewPromptScreen> {
           children: [
             // Image Card
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 8.0,
+              ),
               child: Container(
                 height: 400.0,
                 decoration: BoxDecoration(
@@ -112,9 +112,19 @@ class _PreviewPromptScreenState extends State<PreviewPromptScreen> {
                     fit: StackFit.expand,
                     children: [
                       // Image
-                      Image.asset(
-                        widget.imagePath,
+                      CachedNetworkImage(
+                        imageUrl: widget.imagePath,
                         fit: BoxFit.cover,
+                        placeholder: (context, url) {
+                          return Shimmer.fromColors(
+                            baseColor: const Color(0xFF1B1D24),
+                            highlightColor: const Color(0xFF2C2F3A),
+                            child: Container(color: AppColors.background),
+                          );
+                        },
+                        errorWidget: (context, url, error) {
+                          return Icon(Icons.error_outline);
+                        },
                       ),
                       // Back Button Overlay
                       Positioned(
@@ -132,8 +142,12 @@ class _PreviewPromptScreenState extends State<PreviewPromptScreen> {
                         top: 16.0,
                         right: 16.0,
                         child: _buildGlassmorphicButton(
-                          icon: _isLiked ? Icons.favorite : Icons.favorite_border,
-                          iconColor: _isLiked ? Colors.redAccent : AppColors.white,
+                          icon: _isLiked
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          iconColor: _isLiked
+                              ? Colors.redAccent
+                              : AppColors.white,
                           onTap: () {
                             setState(() {
                               _isLiked = !_isLiked;
@@ -214,7 +228,9 @@ class _PreviewPromptScreenState extends State<PreviewPromptScreen> {
                         borderRadius: BorderRadius.circular(26.0),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.copyButtonGradientStart.withValues(alpha: 0.3),
+                            color: AppColors.copyButtonGradientStart.withValues(
+                              alpha: 0.3,
+                            ),
                             blurRadius: 10.0,
                             offset: const Offset(0, 4),
                           ),
@@ -262,7 +278,9 @@ class _PreviewPromptScreenState extends State<PreviewPromptScreen> {
                         borderRadius: BorderRadius.circular(26.0),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.geminiButtonBg.withValues(alpha: 0.3),
+                            color: AppColors.geminiButtonBg.withValues(
+                              alpha: 0.3,
+                            ),
                             blurRadius: 10.0,
                             offset: const Offset(0, 4),
                           ),
@@ -304,7 +322,7 @@ class _PreviewPromptScreenState extends State<PreviewPromptScreen> {
                   // How to Use
                   Expanded(
                     child: GestureDetector(
-                      onTap: (){},
+                      onTap: () {},
                       child: Container(
                         height: 48.0,
                         decoration: BoxDecoration(

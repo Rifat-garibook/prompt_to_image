@@ -33,7 +33,7 @@ class PromptToImageNotifier extends StateNotifier<PromptToImageState> {
         images = (response.data as List)
             .map((e) => PromptToImageResponseModel.fromJson(e))
             .toList();
-        state = state.copyWith(images: images);
+        state = state.copyWith(promptToImageResponses: images);
       } else {
         if (!context.mounted) return;
         Utils.customSnackBar(

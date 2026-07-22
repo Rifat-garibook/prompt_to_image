@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/config/app_colors.dart';
 
 class PromptCard extends StatelessWidget {
@@ -25,9 +27,21 @@ class PromptCard extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             // The background image
-            Image.asset(
-              imagePath,
+            CachedNetworkImage(
+              imageUrl: imagePath,
               fit: BoxFit.cover,
+              placeholder: (context, url) {
+                return Shimmer.fromColors(
+                  baseColor: const Color(0xFF1B1D24),
+                  highlightColor: const Color(0xFF2C2F3A),
+                  child: Container(
+                    color: AppColors.background,
+                  ),
+                );
+              },
+              errorWidget: (context, url, error) {
+                return Icon(Icons.error_outline);
+              },
             ),
             // Heart button in the top right corner
             Positioned(

@@ -6,7 +6,7 @@ class PromptToImageState {
 
   final String? error;
 
-  final List<PromptToImageResponseModel> images;
+  final List<PromptToImageResponseModel> promptToImageResponses;
 
   const PromptToImageState({
 
@@ -14,7 +14,7 @@ class PromptToImageState {
 
     this.error,
 
-    this.images = const [],
+    this.promptToImageResponses = const [],
 
   });
 
@@ -24,7 +24,7 @@ class PromptToImageState {
 
     String? error,
 
-    List<PromptToImageResponseModel>? images,
+    List<PromptToImageResponseModel>? promptToImageResponses,
 
   }) {
 
@@ -34,7 +34,7 @@ class PromptToImageState {
 
       error: error,
 
-      images: images ?? this.images,
+      promptToImageResponses: promptToImageResponses ?? this.promptToImageResponses,
 
     );
 

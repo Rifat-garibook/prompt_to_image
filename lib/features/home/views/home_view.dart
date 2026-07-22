@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../core/config/app_colors.dart';
 import '../../preview_prompt/views/preview_prompt_screen.dart';
@@ -19,15 +20,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   final Set<int> _likedItems = {};
 
   final List<String> _categories = ['TRENDING', 'BOYS', 'GIRLS', 'COUPLE'];
-
-  final List<String> _images = [
-    'assets/images/car_man.png',
-    'assets/images/futuristic_man.png',
-    'assets/images/boy_sherwani.png',
-    'assets/images/subway_man.png',
-    'assets/images/steps_man.png',
-    'assets/images/train_woman.png',
-  ];
 
   final Map<String, String> _prompts = {
     'assets/images/car_man.png':
@@ -60,76 +52,62 @@ class _HomeViewState extends ConsumerState<HomeView> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           // Header Row
-          Consumer(
-            builder: (context, ref, child) {
-              if (imagesState.loading) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              if (imagesState.images.isEmpty) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: Text('No images found')),
-                );
-              }
-              return SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome back',
-                            style: TextStyle(
-                              color: AppColors.white.withValues(alpha: 0.55),
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          const SizedBox(height: 4.0),
-                          Text(
-                            imagesState.images.first.prompt!,
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 22.0,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Search Button
-                      Container(
-                        width: 44.0,
-                        height: 44.0,
-                        decoration: BoxDecoration(
-                          color: AppColors.searchButtonBg,
-                          borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(
-                            color: AppColors.white.withValues(alpha: 0.08),
-                            width: 1.0,
-                          ),
+                      Text(
+                        'Welcome back',
+                        style: TextStyle(
+                          color: AppColors.white.withValues(alpha: 0.55),
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w400,
                         ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.search,
-                            color: AppColors.white.withValues(alpha: 0.8),
-                            size: 20.0,
-                          ),
-                          onPressed: () {
-                            // TODO: Implement search functionality
-                          },
+                      ),
+                      const SizedBox(height: 4.0),
+                      Text(
+                        "My Prompt",
+                        style: TextStyle(
+                          color: AppColors.white,
+                          fontSize: 22.0,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.2,
                         ),
                       ),
                     ],
                   ),
-                ),
-              );
-            },
+                  // Search Button
+                  Container(
+                    width: 44.0,
+                    height: 44.0,
+                    decoration: BoxDecoration(
+                      color: AppColors.searchButtonBg,
+                      borderRadius: BorderRadius.circular(12.0),
+                      border: Border.all(
+                        color: AppColors.white.withValues(alpha: 0.08),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.search,
+                        color: AppColors.white.withValues(alpha: 0.8),
+                        size: 20.0,
+                      ),
+                      onPressed: () {
+                        // TODO: Implement search functionality
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
 
           // Categories Selector
@@ -202,57 +180,84 @@ class _HomeViewState extends ConsumerState<HomeView> {
           const SliverToBoxAdapter(child: SizedBox(height: 20.0)),
 
           // Prompt Cards Grid
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16.0,
-                crossAxisSpacing: 16.0,
-                childAspectRatio: 0.72,
-              ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final imagePath = _images[index % _images.length];
-                final isLiked = _likedItems.contains(index);
-                return PromptCard(
-                  imagePath: imagePath,
-                  isLiked: isLiked,
-                  onLikePressed: () {
-                    setState(() {
-                      if (isLiked) {
-                        _likedItems.remove(index);
-                      } else {
-                        _likedItems.add(index);
-                      }
-                    });
-                  },
-                  onTap: () async {
-                    final result = await Navigator.of(context).push<bool>(
-                      PageTransition(
-                        type: PageTransitionType.fade,
-                        childCurrent: widget,
-                        child: PreviewPromptScreen(
-                          imagePath: imagePath,
-                          promptText: _prompts[imagePath] ?? '',
-                          initialIsLiked: isLiked,
+          Consumer(
+            builder: (context, ref, child) {
+              if (imagesState.loading) {
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16.0,
+                          crossAxisSpacing: 16.0,
+                          childAspectRatio: 0.72,
                         ),
-                        duration: const Duration(milliseconds: 500),
-                        reverseDuration: const Duration(milliseconds: 250),
-                      ),
-                    );
-                    if (result != null) {
-                      setState(() {
-                        if (result) {
-                          _likedItems.add(index);
-                        } else {
-                          _likedItems.remove(index);
-                        }
-                      });
-                    }
-                  },
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(16.0),
+                        child: Shimmer.fromColors(
+                          baseColor: const Color(0xFF1B1D24),
+                          highlightColor: const Color(0xFF2C2F3A),
+                          child: Container(color: AppColors.background),
+                        ),
+                      );
+                    }, childCount: 6),
+                  ),
                 );
-              }, childCount: _images.length),
-            ),
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16.0,
+                    crossAxisSpacing: 16.0,
+                    childAspectRatio: 0.72,
+                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final imagePath = imagesState.promptToImageResponses
+                        .map((e) => e.imageUrl)
+                        .toList();
+                    final isLiked = _likedItems.contains(index);
+                    return PromptCard(
+                      imagePath: imagePath[index] ?? "",
+                      isLiked: isLiked,
+                      onLikePressed: () {
+                        setState(() {
+                          if (isLiked) {
+                            _likedItems.remove(index);
+                          } else {
+                            _likedItems.add(index);
+                          }
+                        });
+                      },
+                      onTap: () async {
+                        final result = await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => PreviewPromptScreen(
+                              imagePath: imagePath[index] ?? "",
+                              promptText: _prompts[imagePath[index]] ?? '',
+                              initialIsLiked: isLiked,
+                            ),
+                          ),
+                        );
+                        if (result != null) {
+                          setState(() {
+                            if (result) {
+                              _likedItems.add(index);
+                            } else {
+                              _likedItems.remove(index);
+                            }
+                          });
+                        }
+                      },
+                    );
+                  }, childCount: imagesState.promptToImageResponses.length),
+                ),
+              );
+            },
           ),
 
           // Bottom padding so content doesn't get cut off by floating navigation bar
