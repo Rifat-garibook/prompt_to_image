@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_colors.dart';
 import '../../home/views/home_view.dart';
 import '../../saved/views/saved_view.dart';
+import '../../wallpaper/views/wallpaper_view.dart';
 
 class NavScreen extends ConsumerStatefulWidget {
   const NavScreen({super.key});
@@ -14,7 +15,6 @@ class NavScreen extends ConsumerStatefulWidget {
 class _NavScreenState extends ConsumerState<NavScreen> {
   int _currentIndex = 0;
 
-
   // @override
   // void initState() {
   //   super.initState();
@@ -25,12 +25,7 @@ class _NavScreenState extends ConsumerState<NavScreen> {
 
   final List<Widget> _views = [
     const HomeView(),
-    const Center(
-      child: Text(
-        'Generate Prompt',
-        style: TextStyle(color: AppColors.white, fontSize: 18.0),
-      ),
-    ),
+    const WallpaperView(),
     const SavedView(),
     const Center(
       child: Text(
@@ -72,7 +67,9 @@ class _NavScreenState extends ConsumerState<NavScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? AppColors.navItemActiveIcon : AppColors.white.withValues(alpha: 0.4),
+              color: isSelected
+                  ? AppColors.navItemActiveIcon
+                  : AppColors.white.withValues(alpha: 0.4),
               size: 22.0,
             ),
             if (isSelected) ...[
@@ -98,10 +95,7 @@ class _NavScreenState extends ConsumerState<NavScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       extendBody: true, // Content scrolls under the floating nav bar
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _views,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _views),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 16.0),
@@ -128,7 +122,7 @@ class _NavScreenState extends ConsumerState<NavScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildNavItem(0, Icons.home_rounded, 'Home'),
-                _buildNavItem(1, Icons.auto_awesome_rounded, 'Create'),
+                _buildNavItem(1, Icons.image_rounded, 'Wallpaper'),
                 _buildNavItem(2, Icons.collections_bookmark_rounded, 'Saved'),
                 _buildNavItem(3, Icons.settings_rounded, 'Settings'),
               ],
