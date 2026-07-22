@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:riverpod/legacy.dart';
 
-import '../../../core/network/constants/api_constants.dart';
 import '../../../core/network/dio/dio_client.dart';
 import '../../../core/network/exceptions/api_exceptions.dart';
 import '../../../core/utilities/widgets/custom_snack.dart';

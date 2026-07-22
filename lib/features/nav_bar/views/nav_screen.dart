@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_colors.dart';
 import '../../home/views/home_view.dart';
-import '../../prompt_to_images/provider/prompt_to_image_provider.dart';
+import '../../saved/views/saved_view.dart';
 
 class NavScreen extends ConsumerStatefulWidget {
   const NavScreen({super.key});
@@ -31,12 +31,7 @@ class _NavScreenState extends ConsumerState<NavScreen> {
         style: TextStyle(color: AppColors.white, fontSize: 18.0),
       ),
     ),
-    const Center(
-      child: Text(
-        'Saved Prompts',
-        style: TextStyle(color: AppColors.white, fontSize: 18.0),
-      ),
-    ),
+    const SavedView(),
     const Center(
       child: Text(
         'Settings',
