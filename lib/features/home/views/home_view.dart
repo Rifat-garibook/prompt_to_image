@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../core/config/app_colors.dart';
@@ -182,7 +181,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
           // Prompt Cards Grid
           Consumer(
             builder: (context, ref, child) {
-              if (imagesState.loading) {
+              if (imagesState.loading &&
+                  imagesState.promptToImageResponses.isEmpty) {
                 return SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   sliver: SliverGrid(
@@ -207,6 +207,34 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 );
               }
 
+              final selectedCategory = _categories[_selectedCategoryIndex];
+              final filteredItems = imagesState.promptToImageResponses.where((
+                item,
+              ) {
+                if (selectedCategory == 'TRENDING') {
+                  return true;
+                }
+                return item.category?.trim().toLowerCase() ==
+                    selectedCategory.toLowerCase();
+              }).toList();
+
+              if (filteredItems.isEmpty) {
+                return SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40.0),
+                    child: Center(
+                      child: Text(
+                        'No images found for $selectedCategory',
+                        style: TextStyle(
+                          color: AppColors.white.withValues(alpha: 0.6),
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
               return SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 sliver: SliverGrid(
@@ -217,44 +245,41 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     childAspectRatio: 0.72,
                   ),
                   delegate: SliverChildBuilderDelegate((context, index) {
-                    final imagePath = imagesState.promptToImageResponses
-                        .map((e) => e.imageUrl)
-                        .toList();
-                    final isLiked = _likedItems.contains(index);
+                    final item = filteredItems[index];
+                    final itemId = item.id ?? index;
+                    final isLiked = item.isLiked;
                     return PromptCard(
-                      imagePath: imagePath[index] ?? "",
-                      isLiked: isLiked,
+                      imagePath: item.imageUrl ?? "",
+                      isLiked: isLiked ?? false,
                       onLikePressed: () {
-                        setState(() {
-                          if (isLiked) {
-                            _likedItems.remove(index);
-                          } else {
-                            _likedItems.add(index);
-                          }
-                        });
+                        final currentLiked = isLiked ?? false;
+                        ref
+                            .read(promptToImageProvider.notifier)
+                            .toggleLike(itemId, !currentLiked);
                       },
                       onTap: () async {
                         final result = await Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => PreviewPromptScreen(
-                              imagePath: imagePath[index] ?? "",
-                              promptText: _prompts[imagePath[index]] ?? '',
-                              initialIsLiked: isLiked,
+                              imagePath: item.imageUrl ?? "",
+                              promptText:
+                                  item.prompt ?? _prompts[item.imageUrl] ?? '',
+                              initialIsLiked: isLiked ?? false,
                             ),
                           ),
                         );
                         if (result != null) {
                           setState(() {
                             if (result) {
-                              _likedItems.add(index);
+                              _likedItems.add(itemId);
                             } else {
-                              _likedItems.remove(index);
+                              _likedItems.remove(itemId);
                             }
                           });
                         }
                       },
                     );
-                  }, childCount: imagesState.promptToImageResponses.length),
+                  }, childCount: filteredItems.length),
                 ),
               );
             },

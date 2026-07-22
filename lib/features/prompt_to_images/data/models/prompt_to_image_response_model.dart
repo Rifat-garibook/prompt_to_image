@@ -14,6 +14,7 @@ class PromptToImageResponseModel {
     final String? imageUrl;
     final String? prompt;
     final String? category;
+    final bool? isLiked;
     final DateTime? createdAt;
 
     PromptToImageResponseModel({
@@ -22,6 +23,7 @@ class PromptToImageResponseModel {
         this.imageUrl,
         this.prompt,
         this.category,
+        this.isLiked,
         this.createdAt,
     });
 
@@ -31,6 +33,7 @@ class PromptToImageResponseModel {
         imageUrl: json["image_url"],
         prompt: json["prompt"],
         category: json["category"],
+        isLiked: json["is_liked"] ?? false,
         createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
     );
 
@@ -40,6 +43,27 @@ class PromptToImageResponseModel {
         "image_url": imageUrl,
         "prompt": prompt,
         "category": category,
+        "is_liked": isLiked,
         "created_at": createdAt?.toIso8601String(),
     };
+
+    PromptToImageResponseModel copyWith({
+      int? id,
+      String? title,
+      String? imageUrl,
+      String? prompt,
+      String? category,
+      bool? isLiked,
+      DateTime? createdAt,
+    }) {
+      return PromptToImageResponseModel(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        imageUrl: imageUrl ?? this.imageUrl,
+        prompt: prompt ?? this.prompt,
+        category: category ?? this.category,
+        isLiked: isLiked ?? this.isLiked,
+        createdAt: createdAt ?? this.createdAt,
+      );
+    }
 }

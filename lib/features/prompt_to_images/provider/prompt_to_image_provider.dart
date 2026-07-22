@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:riverpod/legacy.dart';
 
+import '../../../core/network/constants/api_constants.dart';
 import '../../../core/network/dio/dio_client.dart';
 import '../../../core/network/exceptions/api_exceptions.dart';
 import '../../../core/utilities/widgets/custom_snack.dart';
@@ -20,7 +21,10 @@ class PromptToImageNotifier extends StateNotifier<PromptToImageState> {
 
   final Dio _dio = DioClient.dio;
 
-  Future<void> getImages(BuildContext context) async {
+  Future<void> getImages(BuildContext context, {bool force = false}) async {
+    if (state.promptToImageResponses.isNotEmpty && !force) {
+      return;
+    }
     state = state.copyWith(loading: true, error: null);
 
     try {
@@ -52,6 +56,41 @@ class PromptToImageNotifier extends StateNotifier<PromptToImageState> {
       Utils.customSnackBar(context: context, snackText: e.toString());
     } finally {
       state = state.copyWith(loading: false);
+    }
+  }
+
+  Future<void> toggleLike(int id, bool isLiked) async {
+    // 1. Optimistic UI update
+    log("toggleLike for id=$id, isLiked=$isLiked");
+    final updatedList = state.promptToImageResponses.map((item) {
+      if (item.id == id) {
+        return item.copyWith(isLiked: isLiked);
+      }
+      return item;
+    }).toList();
+
+    state = state.copyWith(promptToImageResponses: updatedList);
+
+    // 2. Update Supabase backend database table
+    try {
+      log("is click 2 ---");
+      final response = await _dio.patch(
+        "/rest/v1/ai_images?id=eq.$id",
+        data: {"is_liked": isLiked},
+        options: Options(headers: {"Prefer": "return=representation"}),
+      );
+      log("response code toggleLike=== ${response.statusCode}");
+      log("response data toggleLike=== ${response.data}");
+    } catch (e) {
+      log("Error updating like status in Supabase: $e");
+      // Revert optimistic update if request fails
+      final revertedList = state.promptToImageResponses.map((item) {
+        if (item.id == id) {
+          return item.copyWith(isLiked: !isLiked);
+        }
+        return item;
+      }).toList();
+      state = state.copyWith(promptToImageResponses: revertedList);
     }
   }
 }

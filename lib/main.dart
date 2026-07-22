@@ -3,13 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/config/app_colors.dart';
+import 'core/network/constants/api_constants.dart';
 import 'features/nav_bar/views/nav_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
-    url: 'https://afbsbwlqvxutrtovymde.supabase.co/rest/v1/',
-    publishableKey: 'sb_publishable_pfD1znJibeLI71dD--AWEA_kzaX-iva',
+    url: ApiConstants.baseUrl,
+    publishableKey: ApiConstants.apiKey,
   );
 
   // Set system UI overlay style for dark mode integration
